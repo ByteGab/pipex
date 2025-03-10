@@ -6,7 +6,13 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 02:39:31 by gafreire          #+#    #+#             */
-/*   Updated: 2025/03/10 02:39:32 by gafreire         ###   ########.fr       */
+/*   Updated: 2025/03/10 02:44:51 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef PIPEX_H
+# define PIPEX_H
+
+#include <unistd.h>
+#include <stdio.h>
+#endif
