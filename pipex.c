@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 02:45:02 by gafreire          #+#    #+#             */
-/*   Updated: 2025/03/13 15:08:05 by gafreire         ###   ########.fr       */
+/*   Updated: 2025/03/15 19:17:11 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ void	parent(void)
 
 int main(int argc,char *argv[])
 {
+    int pip[2];
+    int check_pipe;
     // is 5 arguments?
     // create pipe.
     // create proccess child with fork.
@@ -47,16 +49,31 @@ int main(int argc,char *argv[])
             printf("Error archivo");
         }
         open(argv[5]);
+        // if exist infile and outfile
         if(open < 0)
         {
             //O_CREAT
             // create file
             
         }
-        // if exist infile and outfile
-        // create pipe
-        // child proccess
-        // parent proccess
+        else
+        {
+            // create pipe
+            check_pipe = pipe(pip);
+            if (check_pipe == 0)
+            {
+                fork();
+                // if fork == -1 --> error
+                // if child process?
+                    child();
+                // if parent proccess? --> wait to  child process   
+                    parent();
+            }
+            else if (check_pipe == -1)
+                printf("Error al ejecutar pipe");
+            
+            
+        }
         // wait to all procces
         // execute execve
     }
