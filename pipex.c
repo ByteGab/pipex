@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 02:45:02 by gafreire          #+#    #+#             */
-/*   Updated: 2025/03/15 19:17:11 by gafreire         ###   ########.fr       */
+/*   Updated: 2025/03/15 23:38:20 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,18 +43,18 @@ int main(int argc,char *argv[])
     }
     else
     {
-        open(argv[1]);
+        open(argv[1],O_RDONLY);
         if(open < 0)
         {
             printf("Error archivo");
         }
-        open(argv[5]);
+        open(argv[5],O_RDONLY);
         // if exist infile and outfile
         if(open < 0)
         {
             //O_CREAT
             // create file
-            
+            open(argv[5],O_CREAT);
         }
         else
         {
