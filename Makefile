@@ -1,10 +1,11 @@
 # Variables
 NAME            = pipex
+LIBFT_DIR   = ./libft
+LIBFT_LIB   = $(LIBFT_DIR)/libft.a
 
-SOURCES         = 
+SOURCES         = pipex.c
 
 OBJECTS         = $(SOURCES:.c=.o)
-GNL_OBJECTS     = $(GNL_SOURCES:.c=.o)
 
 # Herramientas
 CC              = cc
@@ -23,22 +24,24 @@ PURPLE          = \033[1;35m
 # Reglas
 all: banner $(NAME)
 
-$(NAME): $(OBJECTS) $(GNL_OBJECTS) $(FT_PRINTF_LIB) $(MLX)
-	@echo "$(CYAN)Linking $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $^ -o $(NAME) >/dev/null 2>&1
-	@echo "$(GREEN)✔ $(NAME) compiled successfully!$(RESET)"
-
+$(LIBFT_LIB_LIB):
+	@echo "$(CYAN)Building ft_printf...$(RESET)"
+	@make -C $(LIBFT_DIR) >/dev/null 2>&1
 %.o: %.c
 	@echo "$(YELLOW)Compiling $<...$(RESET)"
-	@$(CC) $(CFLAGS) -I$(MLX_DIR) -Iincludes -c $< -o $@ >/dev/null 2>&1
+	@$(CC) $(CFLAGS) -c $< -o $@ >/dev/null 2>&1
 
 clean:
 	@echo "$(RED)Cleaning object files...$(RESET)"
-
+	@$(RM) $(OBJECTS) >/dev/null 2>&1
+	@echo "$(RED)Cleaning libft...$(RESET)"
+	@$(RM) $(OBJECTS) $(LIBFT_DIR) clean >/dev/null 2>&1
 
 fclean: clean
 	@echo "$(RED)Removing $(NAME)...$(RESET)"
 	@$(RM) $(NAME) >/dev/null 2>&1
+	@echo "$(RED)Cleaning libft...$(RESET)"
+	@$(RM) $(OBJECTS) $(LIBFT_DIR) fclean >/dev/null 2>&1
 
 re: fclean all
 
