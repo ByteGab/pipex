@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 02:45:02 by gafreire          #+#    #+#             */
-/*   Updated: 2025/03/22 01:16:02 by gafreire         ###   ########.fr       */
+/*   Updated: 2025/03/23 08:44:01 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,160 +14,115 @@
 #include <errno.h>
 #include <stdlib.h>
 
-int	exc_prcs(char **envp)
-{
-	int	path;
+// ------------------------------------------------------------------------------
+// TODO 		- If find command, return all path it not find clean all.|
+// ------------------------------------------------------------------------------
 
-	// ------------------------------------------------------------------------
-	// TODO 		- Splits the command argument into an array of arguments.		|
-	// ------------------------------------------------------------------------
-	//! split
-	//* call search_prcs to obtain path.
-	path = search_prcs(envp);
-	//* if no exists free all.
-	if (path == 1)
-	{
-		printf("No se  encuntra la ruta");
-		//! free all
-		return (1);
-	}
-	//* if exists use execve.
-	else if (path == 0)
-	{
-		//!		execve();
-	}
-}
-int	search_prcs(char **envp)
+char	*search_prcs(char *cmd, char **envp)
 {
 	int		i;
-	size_t	size_envp;
 	char	**path;
+	char	*full_cmd;
 
-	// ------------------------------------------------------------------------------
-	// TODO 		- If find command, return all path it not find clean all.		|
-	// ------------------------------------------------------------------------------
-	//* Find start to path.	strncmp(envp[i], "PATH=") == 0	-> envp[i]
 	i = 0;
-	size_envp = 0;
-	while (*envp[i] != NULL)
+	while (envp[i] != NULL)
 	{
 		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
-		{
-			printf("Te encontre");
 			break ;
-		}
 		i++;
 	}
-	//* Splits the path string into an array using : as the delimiter.
+	if (envp[i] == NULL)
+		return (NULL);
 	path = ft_split(envp[i] + 5, ':');
-	//* For each path, build the full command path using ft_strjoin.
-	//* Check if the command exists in that path using access
-	return (1);
+	if (path == NULL)
+		return (NULL);
+	full_cmd = ft_cmd_complete(path,cmd);
+	// ft_free(path);
+	return (full_cmd);
 }
-void	child(char *file, char *pip, char **envp)
+// ------------------------------------------------------------------------
+// TODO 		- Splits the command argument into an array of arguments.		|
+// ------------------------------------------------------------------------
+
+int	exc_prcs(char *cmd, char **envp)
+{
+	char	*path;
+	char	**args;
+
+	args = ft_split(cmd, ' ');
+	if (args == NULL)
+		return (1);
+	path = search_prcs(args[0], envp);
+	if (path == NULL)
+	{
+		ft_error("Error: path vacio",1);
+		//! free all
+		// ft_free(args);
+		return (1);
+	}
+	args[0] = path;
+	if (execve(args[0], args, envp) == -1)
+	{
+		ft_error("Error: comando",1);
+		// ft_free(args);
+		return (1);
+	}
+	// ft_free(args);
+	return (0);
+}
+
+void	child1(char *file, char *cmd, int *pip, char **envp)
 {
 	int	infile;
 
-	// ------------------------------------------------------------------------
-	// TODO 		- send estandar exit to pipe and out estandar to file.
-	// ------------------------------------------------------------------------
 	infile = 0;
-	close(pip[0]); //* close pip read
-	//*	open first file to read.
+	close(pip[0]);
 	infile = open(file, O_RDONLY);
 	if (infile < 0)
-	{
-		printf("Error archivo\n");
-		return (1);
-	}
-	//* move fd to mi fd's
-	dup2(STDIN_FILENO, infile);
-	dup2(STDOUT_FILENO, pip[1]);
-	//* close mi fd and pip write
+		ft_error("Error: outfile",1);
+	dup2(infile, STDIN_FILENO);
+	dup2(pip[1], STDOUT_FILENO);
 	close(infile);
 	close(pip[1]);
-	//* execute second comand.
-	exc_prcs(envp);
+	exc_prcs(cmd, envp);
 }
 
-void	parent(char *file, char *pip, char **envp)
+void	child2(char *file, char *cmd, int *pip, char **envp)
 {
 	int	outfile;
 
-	// ------------------------------------------------------------------------
-	// TODO 		- send out estandar to pipe and extandar exit.   				|
-	// ------------------------------------------------------------------------
 	outfile = 0;
-	close(pip[1]); //* close pip write
-	//* open second file to write.
-	outfile = open(file, O_RDWR, 0644);
-	//* if exist infile and outfile.
+	close(pip[1]);
+	outfile = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (outfile < 0)
-	{
-		//* O_CREAT
-		//* create file
-		printf("Crea archivo\n");
-		outfile = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		//! study open
-	}
-	//* move fd to mi fd's
-	dup2(STDIN_FILENO, pip[0]);
-	dup2(STDOUT_FILENO, outfile);
-	//* close mi fd and pip read
+		ft_error("Error: outfile",1);
+	dup2(pip[0], STDIN_FILENO);
+	dup2(outfile, STDOUT_FILENO);
 	close(outfile);
 	close(pip[0]);
-	//*	execute first command.
-	exc_prcs(envp);
+	exc_prcs(cmd, envp);
 }
-
-// for (int i = 0; envp[i]; i++)
-// 	printf ("linea --> %s\n", envp[i]);
-
-int	main(int argc, char *argv[], char **envp) // stdudy envp
+int	main(int argc, char *argv[], char **envp)
 {
-	// ------------------------------------------------------------------------
-	// TODO 		- if 0 arguments corrects print error.								|
-	// ------------------------------------------------------------------------
-	int pip[2]; //* pipe con dos extremos [0] lectura [1] escritura
-	pid_t pid;  // Identificador de procesos
-
-	//* is 5 arguments?
+	int		pip[2];
+	pid_t	pid1, pid2;
+	
 	if (argc != 5)
-	{
-		printf("No es valido\n"); //* close mi fd and pip read
-		exit(EXIT_FAILURE);
-	}
-	else
-	{
-		//* create pipe
-		if (pipe(pip) == -1)
-			printf("Error al ejecutar pipe");
-		else
-		{
-			pid = fork();
-			//* if fork == -1 --> error
-			if (pid == -1)
-			{
-				close(pip[0]);
-				close(pip[1]);
-				printf("Error al crear el fork");
-			}
-			//* create proccess child with fork.
-			//* if child process?
-			else if (pid == 0)
-			{
-				//* children
-				child(argv[1], pip, envp);
-			}
-			//* create procces father
-			//* if parent proccess? --> wait to  child process
-			else
-			{
-				//* wait to child finish proccess an then call father proccess.
-				pid = wait();
-				//* parent
-				parent(argv[4], pip, envp);
-			}
-		}
-	}
+		ft_error("Error: argumentos invalidos", 1);
+	if (pipe(pip) == -1)
+		ft_error("Error: creación pipe", 1);
+	pid1 = fork();
+	if (pid1 == -1)
+		check_pipe("Error: primer hijo", pip);
+	else if (pid1 == 0)
+		child1(argv[1], argv[2], pip, envp);
+	pid2 = fork();
+	if (pid2 == -1)
+	check_pipe("Error: segundo hijo", pip);
+	else if (pid2 == 0)
+		child2(argv[4], argv[3], pip, envp);
+	ft_free(1, pip);
+	waitpid(pid1, NULL, 0);
+	waitpid(pid2, NULL, 0);
+	return (0);
 }
