@@ -3,11 +3,11 @@ NAME            = pipex
 LIBFT_DIR       = ./libft
 LIBFT_LIB       = $(LIBFT_DIR)/libft.a
 
-SOURCES         = pipex.c utils.c
+SOURCES         = pipex.c utils.c second_utils.c
 OBJECTS         = $(SOURCES:.c=.o)
 
 CC              = cc
-CFLAGS          = -Wall -Wextra -Werror
+CFLAGS          = -Wall -Wextra -Werror -g3
 RM              = rm -rf
 
 GREEN           = \033[1;32m
